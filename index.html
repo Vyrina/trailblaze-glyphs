@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trailblaze Glyphs | Honkai: Star Rail Font Translator</title>
+    <meta name="description" content="In-game font translator and glyph image generator for Honkai: Star Rail. Translate Latin to Jarilo-VI, Xianzhou, Penacony, and Amphoreus scripts.">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://vyrina.github.io/trailblaze-glyphs/">
+
+    <link rel="icon" type="image/webp" href="assets/icons/jarilo.webp">
+
+    <meta property="og:site_name" content="Trailblaze Glyphs">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vyrina.github.io/trailblaze-glyphs/">
+    <meta property="og:title" content="Trailblaze Glyphs | Honkai: Star Rail Font Translator">
+    <meta property="og:description" content="In-game font translator and glyph image generator for Honkai: Star Rail. Translate Latin to Jarilo-VI, Xianzhou, Penacony, and Amphoreus scripts.">
+    <meta property="og:image" content="https://vyrina.github.io/trailblaze-glyphs/assets/og-banner.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Trailblaze Glyphs | Honkai: Star Rail Font Translator">
+    <meta name="twitter:description" content="In-game font translator and glyph image generator for Honkai: Star Rail. Translate Latin to Jarilo-VI, Xianzhou, Penacony, and Amphoreus scripts.">
+    <meta name="twitter:image" content="https://vyrina.github.io/trailblaze-glyphs/assets/og-banner.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="studio-app">
+
+        <aside class="studio-sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-title">Trailblaze Glyphs</div>
+                <div class="brand-tag">Translation Workbench</div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">Writing System</div>
+                <nav class="script-vertical-nav">
+                    <button class="script-btn active" data-script="jarilo" type="button">
+                        <img src="assets/icons/jarilo.webp" alt="" class="script-icon">
+                        <div class="script-meta">
+                            <span class="script-name">Jarilo-VI</span>
+                            <span class="script-sub">1st World · Belobog</span>
+                        </div>
+                    </button>
+                    <button class="script-btn" data-script="xianzhou" type="button">
+                        <img src="assets/icons/xianzhou.png" alt="" class="script-icon">
+                        <div class="script-meta">
+                            <span class="script-name">Xianzhou</span>
+                            <span class="script-sub">2nd World · Luofu</span>
+                        </div>
+                    </button>
+                    <button class="script-btn" data-script="penacony" type="button">
+                        <img src="assets/icons/penacony.webp" alt="" class="script-icon">
+                        <div class="script-meta">
+                            <span class="script-name">Penacony</span>
+                            <span class="script-sub">3rd World · Dreamscape</span>
+                        </div>
+                    </button>
+                    <button class="script-btn" data-script="amphoreus" type="button">
+                        <img src="assets/icons/amphoreus.webp" alt="" class="script-icon">
+                        <div class="script-meta">
+                            <span class="script-name">Amphoreus</span>
+                            <span class="script-sub">4th World · Eternal Realm</span>
+                        </div>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="sidebar-section flex-grow">
+                <div class="sidebar-label-row">
+                    <span class="sidebar-label">Glyph Index</span>
+                    <span class="script-active-label" id="matrix-script-name">Jarilo-VI</span>
+                </div>
+                <div class="sidebar-glyph-matrix" id="charmap-grid"></div>
+            </div>
+
+            <div class="sidebar-footer">
+                <a href="https://github.com/Vyrina/trailblaze-glyphs" target="_blank" rel="noopener" class="repo-link">
+                    <svg class="repo-icon" viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                    <span>GitHub Repository ↗</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="studio-workbench">
+
+            <!-- Mobile Translator Bar -->
+            <div class="mobile-script-bar mobile-only">
+                <button class="mobile-lang-pill" id="mobile-source-pill" type="button" aria-label="Source language">
+                    <span id="mobile-source-label">Latin</span>
+                    <svg class="select-chevron" id="source-chevron" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                        <path d="m6 9 6 6 6-6"/>
+                    </svg>
+                </button>
+
+                <button class="btn-swap-pill" id="btn-swap-mobile" type="button" aria-label="Swap translation direction">
+                    <svg class="lucide-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m16 3 4 4-4 4"/>
+                        <path d="M20 7H4"/>
+                        <path d="m8 21-4-4 4-4"/>
+                        <path d="M4 17h16"/>
+                    </svg>
+                </button>
+
+                <button class="mobile-lang-pill select-pill" id="mobile-target-pill" type="button" aria-label="Target script">
+                    <span id="mobile-target-label">Jarilo-VI</span>
+                    <svg class="select-chevron" id="target-chevron" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m6 9 6 6 6-6"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Desktop Workbench Header -->
+            <header class="workbench-bar desktop-only">
+                <div class="bar-left">
+                    <span class="active-badge" id="active-badge">Jarilo-VI</span>
+                    <span class="direction-badge" id="direction-badge">Latin → Jarilo-VI</span>
+                    <button class="btn-pill outline" id="btn-swap" type="button">
+                        <svg class="btn-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m16 3 4 4-4 4"/>
+                            <path d="M20 7H4"/>
+                            <path d="m8 21-4-4 4-4"/>
+                            <path d="M4 17h16"/>
+                        </svg>
+                        <span>Swap</span>
+                    </button>
+                </div>
+
+                <div class="bar-right">
+                    <div class="size-control">
+                        <span class="size-label">Size</span>
+                        <input type="range" id="size-slider" min="16" max="120" value="24">
+                        <span class="size-value" id="size-value">24px</span>
+                    </div>
+                    <div class="preset-group">
+                        <button class="preset-btn" data-size="24" type="button">24</button>
+                        <button class="preset-btn" data-size="36" type="button">36</button>
+                        <button class="preset-btn" data-size="48" type="button">48</button>
+                        <button class="preset-btn" data-size="72" type="button">72</button>
+                    </div>
+                    <button class="btn-pill outline" id="btn-clear" type="button">Clear</button>
+                    <button class="btn-pill filled" id="btn-copy-png" type="button">Copy PNG</button>
+                </div>
+            </header>
+
+            <div class="workbench-stage">
+
+                <!-- Source Pane -->
+                <div class="stage-pane">
+                    <div class="pane-header">
+                        <div class="pane-header-left">
+                            <span class="pane-label" id="source-title">Source (Latin)</span>
+                            <span class="pane-hint" id="text-counter">0 chars · 0 words</span>
+                        </div>
+                        <button class="pane-action-btn mobile-only" id="btn-clear-mobile" type="button">Clear</button>
+                    </div>
+                    <textarea id="input-text" class="stage-input" placeholder="Type text here..." spellcheck="false" autofocus></textarea>
+                    <div class="sample-quotes">
+                        <button class="sample-btn" data-quote="May This Journey Lead Us Starward" type="button">
+                            <svg class="sample-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                            </svg>
+                            <span>"May This Journey..."</span>
+                        </button>
+                        <button class="sample-btn" data-quote="Rules Are Made to Be Broken" type="button">
+                            <svg class="sample-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                            </svg>
+                            <span>"Rules Are Made..."</span>
+                        </button>
+                        <button class="sample-btn" data-quote="Reach the Unreachable" type="button">
+                            <svg class="sample-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                            </svg>
+                            <span>"Reach the Unreachable"</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Output Pane -->
+                <div class="stage-pane">
+                    <div class="pane-header">
+                        <span class="pane-label" id="target-title">Output (Jarilo-VI)</span>
+                        <div class="pane-header-right mobile-only">
+                            <div class="preset-group mobile-preset-group">
+                                <button class="preset-btn" data-size="24" type="button">24</button>
+                                <button class="preset-btn" data-size="36" type="button">36</button>
+                                <button class="preset-btn" data-size="48" type="button">48</button>
+                            </div>
+                            <button class="btn-pill filled" id="btn-copy-png-mobile" type="button">Copy PNG</button>
+                        </div>
+                    </div>
+                    <div id="output-text" class="stage-output placeholder">Translated glyphs appear here</div>
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- Custom Script Selection Sheet / Modal -->
+    <div id="script-modal" class="script-modal-backdrop" aria-hidden="true">
+        <div class="script-modal-sheet">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <span class="modal-title">Select Writing System</span>
+                <button class="modal-close" id="btn-close-modal" type="button" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/>
+                        <path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-options">
+                <button class="modal-opt-btn active" data-script="jarilo" type="button">
+                    <img src="assets/icons/jarilo.webp" alt="" class="modal-opt-icon">
+                    <div class="modal-opt-meta">
+                        <span class="modal-opt-name">Jarilo-VI</span>
+                        <span class="modal-opt-sub">1st World · Belobog</span>
+                    </div>
+                    <svg class="modal-check" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6 9 17l-5-5"/>
+                    </svg>
+                </button>
+                <button class="modal-opt-btn" data-script="xianzhou" type="button">
+                    <img src="assets/icons/xianzhou.png" alt="" class="modal-opt-icon">
+                    <div class="modal-opt-meta">
+                        <span class="modal-opt-name">Xianzhou</span>
+                        <span class="modal-opt-sub">2nd World · Luofu</span>
+                    </div>
+                    <svg class="modal-check" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6 9 17l-5-5"/>
+                    </svg>
+                </button>
+                <button class="modal-opt-btn" data-script="penacony" type="button">
+                    <img src="assets/icons/penacony.webp" alt="" class="modal-opt-icon">
+                    <div class="modal-opt-meta">
+                        <span class="modal-opt-name">Penacony</span>
+                        <span class="modal-opt-sub">3rd World · Dreamscape</span>
+                    </div>
+                    <svg class="modal-check" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6 9 17l-5-5"/>
+                    </svg>
+                </button>
+                <button class="modal-opt-btn" data-script="amphoreus" type="button">
+                    <img src="assets/icons/amphoreus.webp" alt="" class="modal-opt-icon">
+                    <div class="modal-opt-meta">
+                        <span class="modal-opt-name">Amphoreus</span>
+                        <span class="modal-opt-sub">4th World · Eternal Realm</span>
+                    </div>
+                    <svg class="modal-check" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6 9 17l-5-5"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Copied!</div>
+
+    <script src="app.js"></script>
+</body>
+</html>

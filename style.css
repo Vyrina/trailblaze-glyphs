@@ -576,7 +576,7 @@ html, body {
     border: none;
     outline: none;
     font-family: var(--font-ui);
-    font-size: 24px;
+    font-size: 18px;
     font-weight: 400;
     color: var(--ink);
     background: transparent;
@@ -591,7 +591,7 @@ html, body {
 .stage-output {
     flex: 1;
     width: 100%;
-    font-size: 24px;
+    font-size: 18px;
     line-height: 1.4;
     color: var(--ink);
     word-break: break-word;
@@ -603,7 +603,7 @@ html, body {
 
 .stage-output.placeholder {
     font-family: var(--font-ui) !important;
-    font-size: 24px;
+    font-size: 18px;
     color: var(--text-3);
     font-weight: 400;
 }
@@ -926,15 +926,26 @@ html, body {
 
     .stage-pane {
         padding: 12px 14px;
-        min-height: 150px;
+        min-height: 140px;
     }
 
     .stage-input {
-        min-height: 100px;
+        min-height: 110px;
+        max-height: 220px;
+        overflow-y: auto;
+        font-size: 18px;
     }
 
     .stage-output {
-        min-height: 100px;
+        min-height: 110px;
+        max-height: 220px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        font-size: 18px;
+    }
+
+    .stage-output.placeholder {
+        font-size: 18px;
     }
 
     .mobile-preset-group {

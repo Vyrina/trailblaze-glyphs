@@ -78,7 +78,7 @@ function updateUI(cfg) {
 }
 
 function updateFontSize() {
-    const size = parseInt(sizeSlider?.value || 24, 10);
+    const size = parseInt(sizeSlider?.value || 18, 10);
     if (sizeValue) sizeValue.textContent = `${size}px`;
 
     document.querySelectorAll('.preset-btn').forEach(btn => {
@@ -135,7 +135,7 @@ async function copyPngImage() {
 
     const cfg = SCRIPTS[activeScript];
     const scale = 2;
-    const fontSize = parseInt(sizeSlider?.value || 24, 10) * scale;
+    const fontSize = parseInt(sizeSlider?.value || 18, 10) * scale;
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -290,5 +290,8 @@ document.addEventListener('keydown', (e) => {
 
 if (input) {
     input.value = 'May This Journey Lead Us Starward';
+}
+if (sizeSlider) {
+    sizeSlider.value = '18';
 }
 setScript('jarilo');

@@ -127,10 +127,37 @@ html, body {
     justify-content: space-between;
 }
 
-.script-active-label {
-    font-size: 11px;
+.glyph-tab-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 2px;
+    border-radius: var(--radius-pill);
+}
+
+.glyph-tab-btn {
+    background: transparent;
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 10px;
     font-weight: 600;
+    color: var(--text-2);
+    padding: 2px 7px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: all var(--transition);
+    line-height: 1.2;
+}
+
+.glyph-tab-btn:hover {
     color: var(--ink);
+}
+
+.glyph-tab-btn.active {
+    background: var(--ink-deep);
+    color: #ffffff;
 }
 
 .script-vertical-nav {
@@ -251,6 +278,7 @@ html, body {
 .repo-link {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     width: 100%;
     padding: 8px 12px;

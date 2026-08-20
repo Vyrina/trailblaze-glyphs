@@ -75,7 +75,11 @@
             <div class="sidebar-section flex-grow">
                 <div class="sidebar-label-row">
                     <span class="sidebar-label">Glyph Index</span>
-                    <span class="script-active-label" id="matrix-script-name">Jarilo-VI</span>
+                    <div class="glyph-tab-group">
+                        <button class="glyph-tab-btn active" data-tab="upper" type="button">A-Z</button>
+                        <button class="glyph-tab-btn" data-tab="lower" type="button">a-z</button>
+                        <button class="glyph-tab-btn" data-tab="num" type="button">0-9</button>
+                    </div>
                 </div>
                 <div class="sidebar-glyph-matrix" id="charmap-grid"></div>
             </div>
@@ -121,7 +125,7 @@
                 <div class="bar-left">
                     <span class="active-badge" id="active-badge">Jarilo-VI</span>
                     <span class="direction-badge" id="direction-badge">Latin → Jarilo-VI</span>
-                    <button class="btn-pill outline" id="btn-swap" type="button">
+                    <button class="btn-pill outline" id="btn-swap" type="button" title="Swap translation direction (Ctrl+Shift+S)">
                         <svg class="btn-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="m16 3 4 4-4 4"/>
                             <path d="M20 7H4"/>
@@ -144,8 +148,8 @@
                         <button class="preset-btn" data-size="36" type="button">36</button>
                         <button class="preset-btn" data-size="48" type="button">48</button>
                     </div>
-                    <button class="btn-pill outline" id="btn-clear" type="button">Clear</button>
-                    <button class="btn-pill filled" id="btn-copy-png" type="button">Copy PNG</button>
+                    <button class="btn-pill outline" id="btn-clear" type="button" title="Clear input (Esc)">Clear</button>
+                    <button class="btn-pill filled" id="btn-copy-png" type="button" title="Copy 2x PNG image to clipboard (Ctrl+Shift+C)">Copy PNG</button>
                 </div>
             </header>
 

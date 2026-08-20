@@ -7,7 +7,14 @@ const SCRIPTS = {
 
 let activeScript = 'jarilo';
 let isReverse = false;
+let activeGlyphTab = 'upper';
 let toastTimer = null;
+
+const GLYPH_SETS = {
+    upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    lower: 'abcdefghijklmnopqrstuvwxyz',
+    num:   '0123456789'
+};
 
 const input = document.getElementById('input-text');
 const output = document.getElementById('output-text');
@@ -177,7 +184,7 @@ function buildCharmap(cfg) {
     if (!charmapGrid) return;
     charmapGrid.innerHTML = '';
 
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const chars = GLYPH_SETS[activeGlyphTab] || GLYPH_SETS.upper;
     const fragment = document.createDocumentFragment();
 
     for (const c of chars) {
@@ -190,7 +197,9 @@ function buildCharmap(cfg) {
         `;
         cell.onclick = () => {
             if (input) {
-                input.value += c;
+                const start = input.selectionStart ?? input.value.length;
+                const end = input.selectionEnd ?? input.value.length;
+                input.setRangeText(c, start, end, 'end');
                 render();
                 input.focus();
             }
@@ -199,6 +208,17 @@ function buildCharmap(cfg) {
     }
     charmapGrid.appendChild(fragment);
 }
+
+document.querySelectorAll('.glyph-tab-btn').forEach(btn => {
+    btn.onclick = () => {
+        activeGlyphTab = btn.dataset.tab;
+        document.querySelectorAll('.glyph-tab-btn').forEach(b => {
+            b.classList.toggle('active', b === btn);
+        });
+        const cfg = SCRIPTS[activeScript];
+        if (cfg) buildCharmap(cfg);
+    };
+});
 
 function showToast(msg) {
     if (!toastEl) return;

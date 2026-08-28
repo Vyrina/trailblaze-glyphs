@@ -34,7 +34,7 @@ const sourceWrap = $('source-wrap');
 const fileInput = $('file-input');
 
 function setScript(key) {
-    if (!SCRIPTS[key]) return;
+    if (!SCRIPTS[key] || decoding) return;
     activeScript = key;
     const cfg = SCRIPTS[key];
 
@@ -125,6 +125,7 @@ function render() {
 }
 
 function swap() {
+    if (decoding) return;
     isReverse = !isReverse;
     updateUI(SCRIPTS[activeScript]);
     render();
@@ -145,6 +146,7 @@ function closeModal() {
 }
 
 async function copyPngImage() {
+    if (decoding) return;
     const text = input?.value;
     if (!text) return showToast('Nothing to copy');
 
@@ -359,7 +361,7 @@ async function loadModels() {
     }
 }
 
-function preprocessImage(img) {
+function grayscale(img) {
     const cvs = document.createElement('canvas');
     const ctx = cvs.getContext('2d', { willReadFrequently: true });
     const w = img.naturalWidth || img.width;
@@ -373,26 +375,64 @@ function preprocessImage(img) {
         const off = i * 4;
         gray[i] = .299 * px[off] + .587 * px[off + 1] + .114 * px[off + 2];
     }
+    return { gray, w, h };
+}
 
-    // ink bbox
-    let x0 = w, y0 = h, x1 = 0, y1 = 0;
+function segmentLines(gray, w, h) {
+    // per-row ink count
+    const inkPerRow = new Uint32Array(h);
     for (let y = 0; y < h; y++)
         for (let x = 0; x < w; x++)
-            if (gray[y * w + x] < 240) {
-                if (x < x0) x0 = x; if (x > x1) x1 = x;
-                if (y < y0) y0 = y; if (y > y1) y1 = y;
-            }
-    if (x1 < x0) return null;
+            if (gray[y * w + x] < 240) inkPerRow[y]++;
 
-    // crop with 15% margin
-    const iw = x1 - x0 + 1, ih = y1 - y0 + 1;
+    const bands = [];
+    let inText = false, bandStart = 0, gapStart = 0;
+
+    for (let y = 0; y <= h; y++) {
+        const hasInk = y < h && inkPerRow[y] > 0;
+        if (hasInk && !inText) {
+            // small gap, merge with previous band
+            if (bands.length > 0 && y - gapStart < 4) {
+
+                bands[bands.length - 1].y1 = y;
+            } else {
+                bands.push({ y0: y, y1: y, ink: 0 });
+            }
+            inText = true;
+        } else if (!hasInk && inText) {
+            gapStart = y;
+            inText = false;
+        }
+        if (hasInk && bands.length > 0) {
+            const b = bands[bands.length - 1];
+            b.y1 = y;
+            b.ink += inkPerRow[y];
+        }
+    }
+
+    // per-band horizontal ink bbox
+    for (const b of bands) {
+        let lx = w, rx = 0;
+        for (let y = b.y0; y <= b.y1; y++)
+            for (let x = 0; x < w; x++)
+                if (gray[y * w + x] < 240) {
+                    if (x < lx) lx = x;
+                    if (x > rx) rx = x;
+                }
+        b.x0 = lx; b.x1 = rx;
+    }
+    return bands.filter(b => b.x1 >= b.x0);
+}
+
+function cropLine(gray, w, h, band) {
+    const iw = band.x1 - band.x0 + 1, ih = band.y1 - band.y0 + 1;
     const mx = Math.round(iw * .15), my = Math.round(ih * .15);
-    const cx0 = Math.max(0, x0 - mx), cy0 = Math.max(0, y0 - my);
-    const cx1 = Math.min(w - 1, x1 + mx), cy1 = Math.min(h - 1, y1 + my);
+    const cx0 = Math.max(0, band.x0 - mx), cy0 = Math.max(0, band.y0 - my);
+    const cx1 = Math.min(w - 1, band.x1 + mx), cy1 = Math.min(h - 1, band.y1 + my);
     const cw = cx1 - cx0 + 1, ch = cy1 - cy0 + 1;
 
-    // bilinear resize to h=32
     const th = 32, tw = Math.round(cw * 32 / ch);
+    if (tw < 1) return null;
     const buf = new Float32Array(th * tw);
     for (let ty = 0; ty < th; ty++) for (let tx = 0; tx < tw; tx++) {
         const sy = ty * ch / th + cy0, sx = tx * cw / tw + cx0;
@@ -406,7 +446,6 @@ function preprocessImage(img) {
             gray[iy1 * w + ix1] * fx      * fy
         ) / 127.5 - 1;
     }
-
     return new ort.Tensor('float32', buf, [1, 1, th, tw]);
 }
 
@@ -435,18 +474,44 @@ async function decodeImage(img) {
     const m = await loadModels();
     if (!m) return null;
 
-    const tensor = preprocessImage(img);
-    if (!tensor) return null;
+    const { gray, w, h } = grayscale(img);
+    const bands = segmentLines(gray, w, h);
+    if (!bands.length) return null;
 
-    const results = await Promise.all(
+    // detect script on densest line
+    const pivot = bands.reduce((a, b) => b.ink > a.ink ? b : a);
+    const pivotTensor = cropLine(gray, w, h, pivot);
+    if (!pivotTensor) return null;
+
+    const detect = await Promise.all(
         Object.entries(m).map(async ([key, { session, alphabet }]) => {
-            const out = await session.run({ image: tensor });
-            const logits = Object.values(out)[0];
-            return { script: key, ...ctcDecode(logits, alphabet) };
+            const out = await session.run({ image: pivotTensor });
+            return { script: key, ...ctcDecode(Object.values(out)[0], alphabet) };
         })
     );
-    results.sort((a, b) => b.confidence - a.confidence);
-    return results[0]?.confidence >= .5 ? results[0] : null;
+    detect.sort((a, b) => b.confidence - a.confidence);
+    if (!detect[0] || detect[0].confidence < .5) return null;
+
+    const picked = detect[0].script;
+    const { session, alphabet } = m[picked];
+
+    // decode every line with the chosen script
+    const lines = [];
+    let confTotal = 0;
+    for (const band of bands) {
+        const tensor = cropLine(gray, w, h, band);
+        if (!tensor) { lines.push(''); continue; }
+        const out = await session.run({ image: tensor });
+        const res = ctcDecode(Object.values(out)[0], alphabet);
+        lines.push(res.text);
+        confTotal += res.confidence;
+    }
+
+    return {
+        script: picked,
+        text: lines.join('\n'),
+        confidence: confTotal / bands.length
+    };
 }
 
 function enterDecodeMode(thumbSrc) {

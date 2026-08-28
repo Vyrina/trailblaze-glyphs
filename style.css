@@ -812,6 +812,131 @@ html, body {
     transform: translateY(0);
 }
 
+.source-wrap {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.scan-trigger {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+    z-index: 2;
+    opacity: 0.7;
+}
+
+.scan-trigger:hover {
+    opacity: 1;
+    background: var(--ink-deep);
+    color: #fff;
+    border-color: var(--ink-deep);
+}
+
+.source-wrap.drag-over {
+    outline: 2px dashed var(--ink-deep);
+    outline-offset: -2px;
+}
+
+.source-wrap.drag-over .scan-trigger {
+    opacity: 1;
+    background: var(--ink-deep);
+    color: #fff;
+}
+
+.decode-card {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+}
+
+.stage-pane.decoding .source-wrap,
+.stage-pane.decoding .sample-quotes {
+    display: none;
+}
+
+.stage-pane.decoding .decode-card {
+    display: flex;
+}
+
+.decode-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.decode-script-badge {
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--ink-deep);
+    background: var(--mint);
+    padding: 3px 9px;
+    border-radius: var(--radius-pill);
+}
+
+.decode-confidence {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-2);
+}
+
+.decode-dismiss {
+    margin-left: auto;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+}
+
+.decode-dismiss:hover {
+    background: var(--ink-deep);
+    color: #fff;
+    border-color: var(--ink-deep);
+}
+
+.decode-preview {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    overflow: hidden;
+    min-height: 0;
+    padding: 12px;
+}
+
+.decode-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
 @media (max-width: 900px) {
     html, body {
         overflow-x: hidden;
@@ -984,5 +1109,16 @@ html, body {
     .mobile-preset-group .preset-btn {
         padding: 2px 5px;
         font-size: 10px;
+    }
+
+    .scan-trigger {
+        bottom: 6px;
+        right: 6px;
+        width: 28px;
+        height: 28px;
+    }
+
+    .decode-preview {
+        padding: 8px;
     }
 }

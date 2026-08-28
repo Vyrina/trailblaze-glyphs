@@ -9,6 +9,9 @@ let activeScript = 'jarilo';
 let isReverse = false;
 let activeGlyphTab = 'upper';
 let toastTimer = null;
+let decoding = false;
+let decodeUrl = null;
+let models = null;
 
 const GLYPH_SETS = {
     upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -16,14 +19,19 @@ const GLYPH_SETS = {
     num:   '0123456789'
 };
 
-const input = document.getElementById('input-text');
-const output = document.getElementById('output-text');
-const sizeSlider = document.getElementById('size-slider');
-const sizeValue = document.getElementById('size-value');
-const scriptModal = document.getElementById('script-modal');
-const toastEl = document.getElementById('toast');
-const textCounter = document.getElementById('text-counter');
-const charmapGrid = document.getElementById('charmap-grid');
+const $ = (id) => document.getElementById(id);
+
+const input = $('input-text');
+const output = $('output-text');
+const sizeSlider = $('size-slider');
+const sizeValue = $('size-value');
+const scriptModal = $('script-modal');
+const toastEl = $('toast');
+const textCounter = $('text-counter');
+const charmapGrid = $('charmap-grid');
+const sourcePane = $('source-pane');
+const sourceWrap = $('source-wrap');
+const fileInput = $('file-input');
 
 function setScript(key) {
     if (!SCRIPTS[key]) return;
@@ -34,8 +42,8 @@ function setScript(key) {
         btn.classList.toggle('active', btn.dataset.script === key);
     });
 
-    const activeBadge = document.getElementById('active-badge');
-    const matrixName = document.getElementById('matrix-script-name');
+    const activeBadge = $('active-badge');
+    const matrixName = $('matrix-script-name');
     if (activeBadge) activeBadge.textContent = cfg.name;
     if (matrixName) matrixName.textContent = cfg.name;
 
@@ -45,18 +53,18 @@ function setScript(key) {
 }
 
 function updateUI(cfg) {
-    const dirBadge = document.getElementById('direction-badge');
-    const srcTitle = document.getElementById('source-title');
-    const targetTitle = document.getElementById('target-title');
-    const mobileSrc = document.getElementById('mobile-source-label');
-    const mobileTarget = document.getElementById('mobile-target-label');
-    const srcChevron = document.getElementById('source-chevron');
-    const targetChevron = document.getElementById('target-chevron');
-    const srcPill = document.getElementById('mobile-source-pill');
-    const targetPill = document.getElementById('mobile-target-pill');
+    const dirBadge = $('direction-badge');
+    const srcTitle = $('source-title');
+    const targetTitle = $('target-title');
+    const mobileSrc = $('mobile-source-label');
+    const mobileTarget = $('mobile-target-label');
+    const srcChevron = $('source-chevron');
+    const targetChevron = $('target-chevron');
+    const srcPill = $('mobile-source-pill');
+    const targetPill = $('mobile-target-pill');
 
     if (isReverse) {
-        if (dirBadge) dirBadge.textContent = `${cfg.name} → Latin`;
+        if (dirBadge) dirBadge.textContent = `${cfg.name} \u2192 Latin`;
         if (srcTitle) srcTitle.textContent = `Source (${cfg.name})`;
         if (targetTitle) targetTitle.textContent = 'Output (Latin)';
         if (mobileSrc) mobileSrc.textContent = cfg.name;
@@ -68,7 +76,7 @@ function updateUI(cfg) {
         if (input) input.style.fontFamily = cfg.fontFamily;
         if (output) output.style.fontFamily = 'var(--font-ui)';
     } else {
-        if (dirBadge) dirBadge.textContent = `Latin → ${cfg.name}`;
+        if (dirBadge) dirBadge.textContent = `Latin \u2192 ${cfg.name}`;
         if (srcTitle) srcTitle.textContent = 'Source (Latin)';
         if (targetTitle) targetTitle.textContent = `Output (${cfg.name})`;
         if (mobileSrc) mobileSrc.textContent = 'Latin';
@@ -101,7 +109,7 @@ function render() {
     const text = input?.value || '';
     if (textCounter) {
         const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-        textCounter.textContent = `${text.length} chars · ${words} words`;
+        textCounter.textContent = `${text.length} chars \u00b7 ${words} words`;
     }
 
     if (!output) return;
@@ -143,16 +151,22 @@ async function copyPngImage() {
     const cfg = SCRIPTS[activeScript];
     const scale = 2;
     const fontSize = parseInt(sizeSlider?.value || 18, 10) * scale;
+    const leading = Math.round(fontSize * 1.4);
+    const pad = 48 * scale;
+    const lines = text.split('\n');
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-
     ctx.font = `${fontSize}px ${cfg.fontFamily}, sans-serif`;
-    const textWidth = Math.ceil(ctx.measureText(text).width);
-    const pad = 48 * scale;
 
-    canvas.width = textWidth + pad * 2;
-    canvas.height = fontSize * 2 + pad * 2;
+    let maxW = 0;
+    for (const ln of lines) {
+        const w = ctx.measureText(ln || ' ').width;
+        if (w > maxW) maxW = w;
+    }
+
+    canvas.width = Math.ceil(maxW) + pad * 2;
+    canvas.height = leading * lines.length + pad * 2;
 
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -160,8 +174,11 @@ async function copyPngImage() {
     ctx.font = `${fontSize}px ${cfg.fontFamily}, sans-serif`;
     ctx.fillStyle = '#1a1a1a';
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+    ctx.textBaseline = 'top';
+
+    for (let i = 0; i < lines.length; i++) {
+        ctx.fillText(lines[i], canvas.width / 2, pad + i * leading);
+    }
 
     try {
         canvas.toBlob(async (blob) => {
@@ -239,12 +256,12 @@ document.querySelectorAll('.modal-opt-btn').forEach(btn => {
     };
 });
 
-const srcPill = document.getElementById('mobile-source-pill');
-const targetPill = document.getElementById('mobile-target-pill');
+const srcPill = $('mobile-source-pill');
+const targetPill = $('mobile-target-pill');
 if (srcPill) srcPill.onclick = () => { if (isReverse) openModal(); };
 if (targetPill) targetPill.onclick = () => { if (!isReverse) openModal(); };
 
-const closeBtn = document.getElementById('btn-close-modal');
+const closeBtn = $('btn-close-modal');
 if (closeBtn) closeBtn.onclick = closeModal;
 
 if (scriptModal) {
@@ -275,6 +292,7 @@ if (sizeSlider) sizeSlider.oninput = updateFontSize;
 
 document.querySelectorAll('#btn-clear, #btn-clear-mobile').forEach(btn => {
     btn.onclick = () => {
+        if (decoding) { exitDecodeMode(); return; }
         if (input) {
             input.value = '';
             render();
@@ -301,6 +319,8 @@ document.addEventListener('keydown', (e) => {
     } else if (e.key === 'Escape') {
         if (scriptModal?.classList.contains('open')) {
             closeModal();
+        } else if (decoding) {
+            exitDecodeMode();
         } else if (document.activeElement === input) {
             input.value = '';
             render();
@@ -315,3 +335,232 @@ if (sizeSlider) {
     sizeSlider.value = '18';
 }
 setScript('jarilo');
+
+
+/* ---- glyph decode ---- */
+
+async function loadModels() {
+    if (models) return models;
+    try {
+        const loaded = {};
+        const manifest = await fetch('assets/models/manifest.json').then(r => r.json());
+        await Promise.all(manifest.map(async key => {
+            const [session, alphabet] = await Promise.all([
+                ort.InferenceSession.create(`assets/models/${key}_crnn.onnx`),
+                fetch(`assets/models/${key}_alphabet.json`).then(r => r.json())
+            ]);
+            loaded[key] = { session, alphabet };
+        }));
+        models = loaded;
+        return models;
+    } catch (err) {
+        console.error('Model load failed:', err);
+        return null;
+    }
+}
+
+function preprocessImage(img) {
+    const cvs = document.createElement('canvas');
+    const ctx = cvs.getContext('2d', { willReadFrequently: true });
+    const w = img.naturalWidth || img.width;
+    const h = img.naturalHeight || img.height;
+    cvs.width = w; cvs.height = h;
+    ctx.drawImage(img, 0, 0);
+
+    const px = ctx.getImageData(0, 0, w, h).data;
+    const gray = new Float32Array(w * h);
+    for (let i = 0, n = w * h; i < n; i++) {
+        const off = i * 4;
+        gray[i] = .299 * px[off] + .587 * px[off + 1] + .114 * px[off + 2];
+    }
+
+    // ink bbox
+    let x0 = w, y0 = h, x1 = 0, y1 = 0;
+    for (let y = 0; y < h; y++)
+        for (let x = 0; x < w; x++)
+            if (gray[y * w + x] < 240) {
+                if (x < x0) x0 = x; if (x > x1) x1 = x;
+                if (y < y0) y0 = y; if (y > y1) y1 = y;
+            }
+    if (x1 < x0) return null;
+
+    // crop with 15% margin
+    const iw = x1 - x0 + 1, ih = y1 - y0 + 1;
+    const mx = Math.round(iw * .15), my = Math.round(ih * .15);
+    const cx0 = Math.max(0, x0 - mx), cy0 = Math.max(0, y0 - my);
+    const cx1 = Math.min(w - 1, x1 + mx), cy1 = Math.min(h - 1, y1 + my);
+    const cw = cx1 - cx0 + 1, ch = cy1 - cy0 + 1;
+
+    // bilinear resize to h=32
+    const th = 32, tw = Math.round(cw * 32 / ch);
+    const buf = new Float32Array(th * tw);
+    for (let ty = 0; ty < th; ty++) for (let tx = 0; tx < tw; tx++) {
+        const sy = ty * ch / th + cy0, sx = tx * cw / tw + cx0;
+        const iy = sy | 0, ix = sx | 0;
+        const fy = sy - iy, fx = sx - ix;
+        const iy1 = Math.min(iy + 1, h - 1), ix1 = Math.min(ix + 1, w - 1);
+        buf[ty * tw + tx] = (
+            gray[iy * w + ix]  * (1 - fx) * (1 - fy) +
+            gray[iy * w + ix1] * fx       * (1 - fy) +
+            gray[iy1 * w + ix] * (1 - fx) * fy +
+            gray[iy1 * w + ix1] * fx      * fy
+        ) / 127.5 - 1;
+    }
+
+    return new ort.Tensor('float32', buf, [1, 1, th, tw]);
+}
+
+function ctcDecode(logits, alphabet) {
+    const [, steps, nc] = logits.dims;
+    const d = logits.data;
+    let text = '', prev = -1, psum = 0;
+
+    for (let t = 0; t < steps; t++) {
+        const base = t * nc;
+        let best = -Infinity, bi = 0;
+        for (let c = 0; c < nc; c++)
+            if (d[base + c] > best) { best = d[base + c]; bi = c; }
+
+        let esum = 0;
+        for (let c = 0; c < nc; c++) esum += Math.exp(d[base + c] - best);
+        psum += 1 / esum;
+
+        if (bi !== prev && bi !== 0) text += alphabet[bi - 1];
+        prev = bi;
+    }
+    return { text, confidence: psum / steps };
+}
+
+async function decodeImage(img) {
+    const m = await loadModels();
+    if (!m) return null;
+
+    const tensor = preprocessImage(img);
+    if (!tensor) return null;
+
+    const results = await Promise.all(
+        Object.entries(m).map(async ([key, { session, alphabet }]) => {
+            const out = await session.run({ image: tensor });
+            const logits = Object.values(out)[0];
+            return { script: key, ...ctcDecode(logits, alphabet) };
+        })
+    );
+    results.sort((a, b) => b.confidence - a.confidence);
+    return results[0]?.confidence >= .5 ? results[0] : null;
+}
+
+function enterDecodeMode(thumbSrc) {
+    decoding = true;
+    sourcePane?.classList.add('decoding');
+
+    const thumb = $('decode-thumb');
+    const badge = $('decode-script');
+    const conf = $('decode-confidence');
+    if (thumb) thumb.src = thumbSrc;
+    if (badge) badge.textContent = 'Detecting...';
+    if (conf) conf.textContent = '';
+
+    const srcTitle = $('source-title');
+    const tgtTitle = $('target-title');
+    if (srcTitle) srcTitle.textContent = 'Glyph Image';
+    if (tgtTitle) tgtTitle.textContent = 'Decoded Text';
+    if (textCounter) textCounter.textContent = '';
+
+    if (output) {
+        output.textContent = 'Decoding...';
+        output.classList.add('placeholder');
+        output.style.fontFamily = 'var(--font-ui)';
+    }
+}
+
+function finishDecode(result) {
+    const badge = $('decode-script');
+    const conf = $('decode-confidence');
+
+    if (!result) {
+        if (badge) badge.textContent = 'Unknown';
+        if (conf) conf.textContent = '';
+        if (output) {
+            output.textContent = "Doesn't look like a supported glyph image";
+            output.classList.add('placeholder');
+        }
+        return;
+    }
+
+    const name = SCRIPTS[result.script]?.name || result.script;
+    if (badge) badge.textContent = name;
+    if (conf) conf.textContent = (result.confidence * 100).toFixed(1) + '%';
+    if (output) {
+        output.textContent = result.text;
+        output.classList.remove('placeholder');
+    }
+}
+
+function exitDecodeMode() {
+    decoding = false;
+    sourcePane?.classList.remove('decoding');
+    const thumb = $('decode-thumb');
+    if (thumb) thumb.src = '';
+    if (decodeUrl) { URL.revokeObjectURL(decodeUrl); decodeUrl = null; }
+    updateUI(SCRIPTS[activeScript]);
+    render();
+    input?.focus();
+}
+
+function handleImageFile(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    if (decodeUrl) URL.revokeObjectURL(decodeUrl);
+    decodeUrl = URL.createObjectURL(file);
+
+    const img = new Image();
+    img.onload = async () => {
+        enterDecodeMode(decodeUrl);
+        try {
+            finishDecode(await decodeImage(img));
+        } catch (err) {
+            console.error('Decode error:', err);
+            finishDecode(null);
+        }
+    };
+    img.onerror = () => showToast('Could not read image');
+    img.src = decodeUrl;
+}
+
+// scan btn / file picker
+const scanBtn = $('btn-scan');
+if (scanBtn) scanBtn.onclick = () => fileInput?.click();
+if (fileInput) fileInput.onchange = () => {
+    if (fileInput.files?.[0]) handleImageFile(fileInput.files[0]);
+    fileInput.value = '';
+};
+
+const dismissBtn = $('decode-dismiss');
+if (dismissBtn) dismissBtn.onclick = exitDecodeMode;
+
+// drag & drop
+if (sourceWrap) {
+    sourceWrap.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        sourceWrap.classList.add('drag-over');
+    });
+    sourceWrap.addEventListener('dragleave', () => sourceWrap.classList.remove('drag-over'));
+    sourceWrap.addEventListener('drop', (e) => {
+        e.preventDefault();
+        sourceWrap.classList.remove('drag-over');
+        const f = e.dataTransfer?.files?.[0];
+        if (f) handleImageFile(f);
+    });
+}
+
+// paste image from clipboard
+document.addEventListener('paste', (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+        if (item.type.startsWith('image/')) {
+            e.preventDefault();
+            handleImageFile(item.getAsFile());
+            return;
+        }
+    }
+});

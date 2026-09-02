@@ -483,12 +483,11 @@ async function decodeImage(img) {
     const pivotTensor = cropLine(gray, w, h, pivot);
     if (!pivotTensor) return null;
 
-    const detect = await Promise.all(
-        Object.entries(m).map(async ([key, { session, alphabet }]) => {
-            const out = await session.run({ image: pivotTensor });
-            return { script: key, ...ctcDecode(Object.values(out)[0], alphabet) };
-        })
-    );
+    const detect = [];
+    for (const [key, { session, alphabet }] of Object.entries(m)) {
+        const out = await session.run({ image: pivotTensor });
+        detect.push({ script: key, ...ctcDecode(Object.values(out)[0], alphabet) });
+    }
     detect.sort((a, b) => b.confidence - a.confidence);
     if (!detect[0] || detect[0].confidence < .5) return null;
 

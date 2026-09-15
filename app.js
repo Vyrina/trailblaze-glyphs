@@ -375,7 +375,7 @@ function grayscale(img) {
         const off = i * 4;
         gray[i] = .299 * px[off] + .587 * px[off + 1] + .114 * px[off + 2];
     }
-    return { gray, w, h };
+    return { gray, w, h, cvs };
 }
 
 function segmentLines(gray, w, h) {
@@ -424,27 +424,31 @@ function segmentLines(gray, w, h) {
     return bands.filter(b => b.x1 >= b.x0);
 }
 
-function cropLine(gray, w, h, band) {
-    const iw = band.x1 - band.x0 + 1, ih = band.y1 - band.y0 + 1;
-    const mx = Math.round(iw * .15), my = Math.round(ih * .15);
-    const cx0 = Math.max(0, band.x0 - mx), cy0 = Math.max(0, band.y0 - my);
-    const cx1 = Math.min(w - 1, band.x1 + mx), cy1 = Math.min(h - 1, band.y1 + my);
+function cropLine(sourceCvs, w, h, band) {
+    const ih = band.y1 - band.y0 + 1;
+    const pad = Math.round(ih * .15);
+    const cx0 = Math.max(0, band.x0 - pad), cy0 = Math.max(0, band.y0 - pad);
+    const cx1 = Math.min(w - 1, band.x1 + pad), cy1 = Math.min(h - 1, band.y1 + pad);
     const cw = cx1 - cx0 + 1, ch = cy1 - cy0 + 1;
 
     const th = 32, tw = Math.round(cw * 32 / ch);
     if (tw < 1) return null;
+
+    const lineCvs = document.createElement('canvas');
+    lineCvs.width = tw;
+    lineCvs.height = th;
+    const ctx = lineCvs.getContext('2d', { willReadFrequently: true });
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    ctx.drawImage(sourceCvs, cx0, cy0, cw, ch, 0, 0, tw, th);
+    const px = ctx.getImageData(0, 0, tw, th).data;
+
     const buf = new Float32Array(th * tw);
-    for (let ty = 0; ty < th; ty++) for (let tx = 0; tx < tw; tx++) {
-        const sy = ty * ch / th + cy0, sx = tx * cw / tw + cx0;
-        const iy = sy | 0, ix = sx | 0;
-        const fy = sy - iy, fx = sx - ix;
-        const iy1 = Math.min(iy + 1, h - 1), ix1 = Math.min(ix + 1, w - 1);
-        buf[ty * tw + tx] = (
-            gray[iy * w + ix]  * (1 - fx) * (1 - fy) +
-            gray[iy * w + ix1] * fx       * (1 - fy) +
-            gray[iy1 * w + ix] * (1 - fx) * fy +
-            gray[iy1 * w + ix1] * fx      * fy
-        ) / 127.5 - 1;
+    for (let i = 0, n = th * tw; i < n; i++) {
+        const off = i * 4;
+        const g = .299 * px[off] + .587 * px[off + 1] + .114 * px[off + 2];
+        buf[i] = g / 127.5 - 1;
     }
     return new ort.Tensor('float32', buf, [1, 1, th, tw]);
 }
@@ -474,13 +478,13 @@ async function decodeImage(img) {
     const m = await loadModels();
     if (!m) return null;
 
-    const { gray, w, h } = grayscale(img);
+    const { gray, w, h, cvs } = grayscale(img);
     const bands = segmentLines(gray, w, h);
     if (!bands.length) return null;
 
     // detect script on densest line
     const pivot = bands.reduce((a, b) => b.ink > a.ink ? b : a);
-    const pivotTensor = cropLine(gray, w, h, pivot);
+    const pivotTensor = cropLine(cvs, w, h, pivot);
     if (!pivotTensor) return null;
 
     const detect = [];
@@ -498,7 +502,7 @@ async function decodeImage(img) {
     const lines = [];
     let confTotal = 0;
     for (const band of bands) {
-        const tensor = cropLine(gray, w, h, band);
+        const tensor = cropLine(cvs, w, h, band);
         if (!tensor) { lines.push(''); continue; }
         const out = await session.run({ image: tensor });
         const res = ctcDecode(Object.values(out)[0], alphabet);

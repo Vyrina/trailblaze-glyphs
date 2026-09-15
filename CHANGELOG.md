@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - Sep 15, 2026
+
+### Changed
+- Use canvas smoothing for OCR line downsampling
+
+### Fixed
+- Fix OCR misdetection and corrupted glyphs on large font sizes (e.g. 120px)
+- Fix aspect ratio distortion when cropping long text lines in OCR
+- Fix glyph index cells stretching vertically on desktop (0-9 tab)
+
 ## [1.5.0] - Sep 10, 2026
 
 ### Added

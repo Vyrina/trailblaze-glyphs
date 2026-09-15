@@ -229,6 +229,7 @@ html, body {
 .sidebar-glyph-matrix {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+    align-content: start;
     gap: 3px;
     overflow-y: auto;
     flex: 1;

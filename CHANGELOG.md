@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - Sep 24, 2026
+
+### Added
+- Decode progress status (model loading, script detection 1/4, multiline reading)
+- Loading spinner on script badge and output pulse during decode
+
+### Changed
+- Retrain all 4 OCR models (Jarilo, Xianzhou, Penacony, Amphoreus) with improved punctuation training
+- Expand Penacony and Amphoreus alphabets to support standard symbols and punctuation
+
+### Fixed
+- Fix repeated punctuation collapsing into single characters in OCR (e.g. "...", "!!!")
+
 ## [1.5.1] - Sep 15, 2026
 
 ### Changed

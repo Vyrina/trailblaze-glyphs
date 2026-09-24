@@ -474,7 +474,11 @@ function ctcDecode(logits, alphabet) {
     return { text, confidence: psum / steps };
 }
 
-async function decodeImage(img) {
+async function decodeImage(img, onProgress) {
+    if (!models && onProgress) {
+        onProgress({ step: 'init', message: 'Loading models...' });
+        await new Promise(r => setTimeout(r, 0));
+    }
     const m = await loadModels();
     if (!m) return null;
 
@@ -488,7 +492,15 @@ async function decodeImage(img) {
     if (!pivotTensor) return null;
 
     const detect = [];
-    for (const [key, { session, alphabet }] of Object.entries(m)) {
+    const entries = Object.entries(m);
+    const total = entries.length;
+    let idx = 0;
+    for (const [key, { session, alphabet }] of entries) {
+        idx++;
+        if (onProgress) {
+            onProgress({ step: 'detect', current: idx, total, script: key });
+            await new Promise(r => setTimeout(r, 0));
+        }
         const out = await session.run({ image: pivotTensor });
         detect.push({ script: key, ...ctcDecode(Object.values(out)[0], alphabet) });
     }
@@ -501,7 +513,12 @@ async function decodeImage(img) {
     // decode every line with the chosen script
     const lines = [];
     let confTotal = 0;
-    for (const band of bands) {
+    for (let i = 0; i < bands.length; i++) {
+        const band = bands[i];
+        if (onProgress) {
+            onProgress({ step: 'lines', current: i + 1, total: bands.length, script: picked });
+            await new Promise(r => setTimeout(r, 0));
+        }
         const tensor = cropLine(cvs, w, h, band);
         if (!tensor) { lines.push(''); continue; }
         const out = await session.run({ image: tensor });
@@ -525,7 +542,10 @@ function enterDecodeMode(thumbSrc) {
     const badge = $('decode-script');
     const conf = $('decode-confidence');
     if (thumb) thumb.src = thumbSrc;
-    if (badge) badge.textContent = 'Detecting...';
+    if (badge) {
+        badge.classList.add('loading');
+        badge.innerHTML = '<span class="decode-spinner"></span> Detecting...';
+    }
     if (conf) conf.textContent = '';
 
     const srcTitle = $('source-title');
@@ -535,8 +555,8 @@ function enterDecodeMode(thumbSrc) {
     if (textCounter) textCounter.textContent = '';
 
     if (output) {
-        output.textContent = 'Decoding...';
-        output.classList.add('placeholder');
+        output.textContent = 'Analyzing image...';
+        output.classList.add('placeholder', 'loading');
         output.style.fontFamily = 'var(--font-ui)';
     }
 }
@@ -544,6 +564,8 @@ function enterDecodeMode(thumbSrc) {
 function finishDecode(result) {
     const badge = $('decode-script');
     const conf = $('decode-confidence');
+    badge?.classList.remove('loading');
+    output?.classList.remove('loading');
 
     if (!result) {
         if (badge) badge.textContent = 'Unknown';
@@ -567,6 +589,9 @@ function finishDecode(result) {
 function exitDecodeMode() {
     decoding = false;
     sourcePane?.classList.remove('decoding');
+    const badge = $('decode-script');
+    badge?.classList.remove('loading');
+    output?.classList.remove('loading');
     const thumb = $('decode-thumb');
     if (thumb) thumb.src = '';
     if (decodeUrl) { URL.revokeObjectURL(decodeUrl); decodeUrl = null; }
@@ -583,8 +608,26 @@ function handleImageFile(file) {
     const img = new Image();
     img.onload = async () => {
         enterDecodeMode(decodeUrl);
+        const badge = $('decode-script');
+        const conf = $('decode-confidence');
         try {
-            finishDecode(await decodeImage(img));
+            const result = await decodeImage(img, (p) => {
+                if (p.step === 'init') {
+                    if (badge) badge.innerHTML = `<span class="decode-spinner"></span> ${p.message}`;
+                    if (output) output.textContent = p.message;
+                } else if (p.step === 'detect') {
+                    const name = SCRIPTS[p.script]?.name || p.script;
+                    if (badge) badge.innerHTML = `<span class="decode-spinner"></span> Detecting (${p.current}/${p.total})...`;
+                    if (conf) conf.textContent = name;
+                    if (output) output.textContent = `Testing ${name}... (${p.current}/${p.total})`;
+                } else if (p.step === 'lines') {
+                    const name = SCRIPTS[p.script]?.name || p.script;
+                    if (badge) badge.innerHTML = `<span class="decode-spinner"></span> Decoding (${name})...`;
+                    if (conf) conf.textContent = p.total > 1 ? `Line ${p.current}/${p.total}` : 'Reading text...';
+                    if (output) output.textContent = `Reading lines (${p.current}/${p.total})...`;
+                }
+            });
+            finishDecode(result);
         } catch (err) {
             console.error('Decode error:', err);
             finishDecode(null);

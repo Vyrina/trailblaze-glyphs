@@ -890,6 +890,40 @@ html, body {
     background: var(--mint);
     padding: 3px 9px;
     border-radius: var(--radius-pill);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.decode-script-badge.loading {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+}
+
+.decode-spinner {
+    width: 9px;
+    height: 9px;
+    border: 1.5px solid var(--border);
+    border-top-color: var(--ink-deep);
+    border-radius: 50%;
+    animation: decode-spin 0.6s linear infinite;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+@keyframes decode-spin {
+    to { transform: rotate(360deg); }
+}
+
+.stage-output.placeholder.loading {
+    animation: decode-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes decode-pulse {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 0.9; }
 }
 
 .decode-confidence {

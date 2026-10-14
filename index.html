@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.6.0">
+    <link rel="stylesheet" href="style.css?v=1.7.0">
 </head>
 <body>
 
@@ -175,6 +175,14 @@
                         <div class="decode-card-header">
                             <span class="decode-script-badge" id="decode-script"></span>
                             <span class="decode-confidence" id="decode-confidence"></span>
+                            <span class="decode-spacer"></span>
+                            <div class="decode-views">
+                                <button class="decode-view-btn active" data-view="translated" type="button">Translated</button>
+                                <button class="decode-view-btn" data-view="lines" type="button">Lines</button>
+                            </div>
+                            <button class="decode-dismiss decode-save" id="decode-save" type="button" title="Save as PNG">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+                            </button>
                             <button class="decode-dismiss" id="decode-dismiss" type="button" title="Back to text input">
                                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                             </button>
@@ -285,9 +293,29 @@
         </div>
     </div>
 
+    <!-- Image Viewer -->
+    <div id="viewer" class="viewer" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="viewer-bar">
+            <div class="decode-views">
+                <button class="decode-view-btn active" data-view="translated" type="button">Translated</button>
+                <button class="decode-view-btn" data-view="lines" type="button">Lines</button>
+            </div>
+            <button class="viewer-toggle active" id="viewer-boxes" type="button">Boxes</button>
+            <span class="decode-spacer"></span>
+            <button class="btn-pill filled" id="viewer-save" type="button">Save PNG</button>
+            <button class="decode-dismiss viewer-close" id="viewer-close" type="button" aria-label="Close">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+        </div>
+        <div class="viewer-body" id="viewer-body">
+            <img id="viewer-img" alt="">
+        </div>
+    </div>
+
     <div id="toast" class="toast">Copied!</div>
 
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
-    <script src="app.js"></script>
+    <script src="detector.js?v=1.7.0"></script>
+    <script src="app.js?v=1.7.0"></script>
 </body>
 </html>

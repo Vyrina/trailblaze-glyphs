@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - Oct 14, 2026
+
+### Added
+- Screenshot decode with a text line detector (`text_detector.onnx`)
+- Translated image for screenshots (decoded text drawn over the original lines)
+- Larger preview with Save PNG
+- Line overlay on the preview (green = read, orange = skipped)
+- Click the script badge to switch to the next most likely script
+- Support light text on dark background in screenshot decode
+
+### Changed
+- Retrain all 4 OCR models (Jarilo, Xianzhou, Penacony, Amphoreus) with screenshot style text and icon training
+- Detect script from the 12 biggest lines instead of 1 in screenshots
+- Skip lines under 11px or with low confidence
+- Add version to OCR model URLs to avoid old models in browser cache
+
+### Fixed
+- Fix random characters when decoding game screenshots (icons, small text)
+
 ## [1.6.0] - Sep 24, 2026
 
 ### Added

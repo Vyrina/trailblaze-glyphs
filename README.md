@@ -10,6 +10,7 @@ A browser workbench to translate Latin text into *Honkai: Star Rail* in-game scr
 
 - **Bi-directional conversion**: Latin-to-script typing and reverse script-to-Latin decoding.
 - **4 in-game scripts**: Jarilo-VI, Xianzhou, Penacony, and Amphoreus.
+- **Glyph image decode**: Reads glyphs from an image or a game screenshot back into Latin text. For screenshots you also get the image back with the decoded text drawn over each line.
 - **Retina PNG export**: Renders text at 2x resolution and copies directly to clipboard for design workflows.
 - **Interactive character index**: Quick character map sidebar with click-to-insert.
 - **Dynamic scaling**: Font size adjustment (16px–120px) with quick presets.
@@ -28,6 +29,17 @@ A browser workbench to translate Latin text into *Honkai: Star Rail* in-game scr
 | **Xianzhou** | 2nd World (Luofu) | `assets/fonts/xianzhou.ttf` |
 | **Penacony** | 3rd World (Dreamscape) | `assets/fonts/penacony.ttf` |
 | **Amphoreus** | 4th World (Eternal Realm) | `assets/fonts/amphoreus.ttf` |
+
+---
+
+## OCR Models
+
+Models are in `assets/models/` and run in the browser with ONNX Runtime Web.
+
+| File | Purpose |
+|---|---|
+| `*_crnn.onnx` | Reads one line of glyphs (one model per script) |
+| `text_detector.onnx` | Finds text lines in a screenshot (used by `detector.js`) |
 
 ---
 

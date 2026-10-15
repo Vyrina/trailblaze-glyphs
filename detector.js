@@ -205,6 +205,10 @@
         return { data, W, H };
     }
 
+    async function preload() {
+        await Promise.all([loadConfig(), loadSession()]);
+    }
+
     async function detect(canvas, opts = {}) {
         const cfg = await loadConfig();
         const session = await loadSession();
@@ -238,5 +242,5 @@
         }));
     }
 
-    window.TextDetector = { detect };
+    window.TextDetector = { detect, preload };
 })();

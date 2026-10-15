@@ -347,8 +347,22 @@ setScript('jarilo');
 // bump with the models, busts the browser cache
 const MODEL_VERSION = '1.7.0';
 
-async function loadModels() {
-    if (models) return models;
+let modelsLoading = null;
+
+function loadModels() {
+    if (models) return Promise.resolve(models);
+    if (!modelsLoading) {
+        modelsLoading = readModels().finally(() => { modelsLoading = null; });
+    }
+    return modelsLoading;
+}
+
+function preloadModels() {
+    loadModels();
+    window.TextDetector?.preload().catch(() => {});
+}
+
+async function readModels() {
     try {
         const loaded = {};
         const manifest = await fetch('assets/models/manifest.json').then(r => r.json());
@@ -1107,7 +1121,10 @@ if (scriptBadge) scriptBadge.onclick = async () => {
 
 // scan btn / file picker
 const scanBtn = $('btn-scan');
-if (scanBtn) scanBtn.onclick = () => fileInput?.click();
+if (scanBtn) scanBtn.onclick = () => {
+    preloadModels();
+    fileInput?.click();
+};
 if (fileInput) fileInput.onchange = () => {
     if (fileInput.files?.[0]) handleImageFile(fileInput.files[0]);
     fileInput.value = '';
@@ -1237,6 +1254,9 @@ if (viewer) {
 
 // drag & drop
 if (sourceWrap) {
+    sourceWrap.addEventListener('dragenter', (e) => {
+        if (e.dataTransfer?.types.includes('Files')) preloadModels();
+    });
     sourceWrap.addEventListener('dragover', (e) => {
         e.preventDefault();
         sourceWrap.classList.add('drag-over');
